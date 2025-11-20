@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+﻿import { useEffect, useRef } from 'react';
 import { fadeIn, fadeOutAndPause } from '../../utils/audio';
 
 export default function BackgroundMusic({ enabled = false, volume = 0.15, loop = true }) {
@@ -37,4 +37,3 @@ export default function BackgroundMusic({ enabled = false, volume = 0.15, loop =
 
   return null;
 }
-

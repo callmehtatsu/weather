@@ -1,4 +1,4 @@
-export const WEATHER_DESC_MAP = {
+﻿export const WEATHER_DESC_MAP = {
   'Clear sky': 'Quang đãng',
   'Mainly clear': 'Hầu hết quang đãng',
   'Partly cloudy': 'Ít mây',
@@ -60,4 +60,3 @@ export const WEATHER_DESC_MAP = {
 };
 
 export const DAY_NAMES = ['Chủ Nhật', 'Thứ Hai', 'Thứ Ba', 'Thứ Tư', 'Thứ Năm', 'Thứ Sáu', 'Thứ Bảy'];
-

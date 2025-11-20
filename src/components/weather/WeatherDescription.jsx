@@ -1,4 +1,4 @@
-import React from 'react';
+﻿import React from 'react';
 import { translateWeatherDesc } from '../../utils/weather';
 import { WEATHER_DESC_MAP } from '../../constants/weather';
 
@@ -42,4 +42,3 @@ export default function WeatherDescription({
     </div>
   );
 }
-

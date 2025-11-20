@@ -1,4 +1,4 @@
-import React from 'react';
+﻿import React from 'react';
 import HourlyIcon from '../icons/HourlyIcon';
 
 export default function HourlyCard({ 
@@ -34,4 +34,3 @@ export default function HourlyCard({
     </button>
   );
 }
-

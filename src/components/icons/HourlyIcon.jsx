@@ -1,5 +1,5 @@
-import React from 'react';
-import IconWeather from '../IconWeather';
+﻿import React from 'react';
+import IconWeather from '../UI/IconWeather';
 
 export default function HourlyIcon({ code, color = '#FFFFFF' }) {
   return (
@@ -12,4 +12,3 @@ export default function HourlyIcon({ code, color = '#FFFFFF' }) {
     </div>
   );
 }
-

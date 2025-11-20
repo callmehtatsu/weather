@@ -1,5 +1,5 @@
-import React from 'react';
-import IconWeather from '../IconWeather';
+﻿import React from 'react';
+import IconWeather from '../UI/IconWeather';
 import { translateWeatherDesc } from '../../utils/weather';
 import { WEATHER_DESC_MAP } from '../../constants/weather';
 
@@ -48,7 +48,7 @@ export default function DailyForecastItem({
       
       <div 
         style={{ 
-          opacity: 1, // Đảm bảo icon không bị mờ
+          opacity: 1, 
           width: '48px', 
           height: '48px', 
           display: 'flex', 
@@ -95,4 +95,3 @@ export default function DailyForecastItem({
     </button>
   );
 }
-

@@ -1,4 +1,4 @@
-import axios from 'axios';
+﻿import axios from 'axios';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000/api';
 
@@ -22,7 +22,9 @@ api.interceptors.request.use(
 api.interceptors.response.use(
   (response) => response.data,
   (error) => {
-    console.error('API Error:', error);
+    if (import.meta.env.DEV) {
+      console.error('API Error:', error);
+    }
     return Promise.reject(error);
   }
 );
@@ -70,4 +72,3 @@ export const mapAPI = {
 };
 
 export default api;
-

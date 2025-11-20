@@ -1,4 +1,4 @@
-import React from 'react';
+﻿import React from 'react';
 import { Droplets, Droplet, Wind } from 'lucide-react';
 
 export default function MetricsCard({ 
@@ -63,4 +63,3 @@ export default function MetricsCard({
     </div>
   );
 }
-

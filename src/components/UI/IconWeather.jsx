@@ -1,10 +1,10 @@
 import React, { memo } from 'react';
 
-import IconSunnyUrl from '../assets/icon/IconSunny.svg';
-import IconPartlyCloudyUrl from '../assets/icon/IconPartlyCloudy.svg';
-import IconOvercastUrl from '../assets/icon/IconOvercast.svg';
-import IconRainUrl from '../assets/icon/IconRain.svg';
-import IconThunderstormUrl from '../assets/icon/IconThunderstorm.svg';
+import IconSunnyUrl from '../../assets/icon/IconSunny.svg';
+import IconPartlyCloudyUrl from '../../assets/icon/IconPartlyCloudy.svg';
+import IconOvercastUrl from '../../assets/icon/IconOvercast.svg';
+import IconRainUrl from '../../assets/icon/IconRain.svg';
+import IconThunderstormUrl from '../../assets/icon/IconThunderstorm.svg';
 
 const IconWeather = memo(function IconWeather({ 
   code,
