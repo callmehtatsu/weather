@@ -34,6 +34,7 @@ export default function App() {
     autoThemeByTime: false,
     tempUnit: 'C',
     soundEnabled: false,
+    gpsEnabled: false,
   });
   const [weather, setWeather] = useState(null);
   const [preview, setPreview] = useState({
@@ -48,6 +49,10 @@ export default function App() {
   const [showSplash, setShowSplash] = useState(true);
   const [hourlyForecast, setHourlyForecast] = useState([]);
   const [dailyForecast, setDailyForecast] = useState([]);
+  const [gpsPermission, setGpsPermission] = useState(null);
+  const [gpsWatchId, setGpsWatchId] = useState(null);
+  const gpsUpdateTimeoutRef = useRef(null);
+  const currentLocationRef = useRef(null);
   const toast = useToast();
   const detailData = {
     date: 'Saturday, Nov 16',
@@ -63,6 +68,64 @@ export default function App() {
   const weatherCache = useRef(new Map());
   const convertTemp = t => settings.tempUnit === 'F' ? Math.round((t * 9) / 5 + 32) : Math.round(t);
 
+  const requestGPSPermission = async () => {
+    if (!navigator.geolocation) {
+      toast.error('Trình duyệt của bạn không hỗ trợ GPS');
+      return false;
+    }
+
+    try {
+      const position = await new Promise((resolve, reject) => {
+        navigator.geolocation.getCurrentPosition(resolve, reject, {
+          enableHighAccuracy: true,
+          timeout: 10000,
+          maximumAge: 0
+        });
+      });
+
+      setGpsPermission('granted');
+      setSettings(prev => ({ ...prev, gpsEnabled: true }));
+      
+      const newLocation = {
+        lat: position.coords.latitude,
+        lon: position.coords.longitude,
+        city: null
+      };
+      setCurrentLocation(newLocation);
+      currentLocationRef.current = newLocation;
+      
+      fetchWeatherData(null, position.coords.latitude, position.coords.longitude);
+      toast.success('Đã bật GPS thành công');
+      return true;
+    } catch (error) {
+      if (error.code === error.PERMISSION_DENIED) {
+        setGpsPermission('denied');
+        toast.error('Bạn đã từ chối quyền truy cập GPS');
+      } else {
+        toast.error('Không thể lấy vị trí GPS');
+      }
+      setSettings(prev => ({ ...prev, gpsEnabled: false }));
+      return false;
+    }
+  };
+
+  const toggleGPS = async (enabled) => {
+    if (enabled) {
+      await requestGPSPermission();
+    } else {
+      if (gpsWatchId !== null) {
+        navigator.geolocation.clearWatch(gpsWatchId);
+        setGpsWatchId(null);
+      }
+      if (gpsUpdateTimeoutRef.current) {
+        clearTimeout(gpsUpdateTimeoutRef.current);
+        gpsUpdateTimeoutRef.current = null;
+      }
+      setSettings(prev => ({ ...prev, gpsEnabled: false }));
+      toast.info('Đã tắt GPS');
+    }
+  };
+
   const fetchWeatherData = async (city = null, lat = null, lon = null, forceRefresh = false) => {
     const cacheKey = city || `${lat},${lon}`;
     const cached = weatherCache.current.get(cacheKey);
@@ -73,6 +136,7 @@ export default function App() {
       setDailyForecast(cached.data.dailyForecast);
       setHourlyForecast(cached.data.hourlyForecast);
       setCurrentLocation(cached.data.currentLocation);
+      currentLocationRef.current = cached.data.currentLocation;
       
       fetchWeatherData(city, lat, lon, true).catch(err => {
         if (import.meta.env.DEV) {
@@ -111,11 +175,13 @@ export default function App() {
         visibility: 10
       });
 
-      setCurrentLocation({
+      const newLocation = {
         lat: currentData.location.lat,
         lon: currentData.location.lon,
         city: currentData.location.city
-      });
+      };
+      setCurrentLocation(newLocation);
+      currentLocationRef.current = newLocation;
 
       const updatedDailyForecast = forecastData.forecast.map((day, index) => {
         const date = new Date(day.date);
@@ -186,6 +252,7 @@ export default function App() {
       
       setWeather(null);
       setCurrentLocation(null);
+      currentLocationRef.current = null;
       setHourlyForecast([]);
       setDailyForecast([]);
       
@@ -214,7 +281,74 @@ export default function App() {
   }, []);
 
   useEffect(() => {
-    if (!currentLocation) return;
+    if (!settings.gpsEnabled || gpsPermission !== 'granted') {
+      if (gpsWatchId !== null) {
+        navigator.geolocation.clearWatch(gpsWatchId);
+        setGpsWatchId(null);
+      }
+      return;
+    }
+
+    const watchId = navigator.geolocation.watchPosition(
+      (position) => {
+        const newLat = position.coords.latitude;
+        const newLon = position.coords.longitude;
+        
+        if (currentLocationRef.current) {
+          const distance = Math.sqrt(
+            Math.pow(newLat - currentLocationRef.current.lat, 2) + 
+            Math.pow(newLon - currentLocationRef.current.lon, 2)
+          ) * 111000;
+          
+          if (distance < 100) {
+            return;
+          }
+        }
+
+        const newLocation = {
+          lat: newLat,
+          lon: newLon,
+          city: null
+        };
+        setCurrentLocation(newLocation);
+        currentLocationRef.current = newLocation;
+        
+        if (gpsUpdateTimeoutRef.current) {
+          clearTimeout(gpsUpdateTimeoutRef.current);
+        }
+        
+        gpsUpdateTimeoutRef.current = setTimeout(() => {
+          fetchWeatherData(null, newLat, newLon);
+        }, 2000);
+      },
+      (error) => {
+        console.error('GPS Error:', error);
+        if (error.code === error.PERMISSION_DENIED) {
+          setGpsPermission('denied');
+          setSettings(prev => ({ ...prev, gpsEnabled: false }));
+        }
+      },
+      {
+        enableHighAccuracy: true,
+        timeout: 10000,
+        maximumAge: 30000
+      }
+    );
+
+    setGpsWatchId(watchId);
+
+    return () => {
+      if (watchId !== null) {
+        navigator.geolocation.clearWatch(watchId);
+      }
+      if (gpsUpdateTimeoutRef.current) {
+        clearTimeout(gpsUpdateTimeoutRef.current);
+      }
+    };
+  }, [settings.gpsEnabled, gpsPermission]);
+
+  useEffect(() => {
+    if (!currentLocation || settings.gpsEnabled) return;
     
     const handleVisibilityChange = () => {
       if (!document.hidden && currentLocation) {
@@ -235,10 +369,10 @@ export default function App() {
       document.removeEventListener('visibilitychange', handleVisibilityChange);
       window.removeEventListener('focus', handleFocus);
     };
-  }, [currentLocation]);
+  }, [currentLocation, settings.gpsEnabled]);
 
   useEffect(() => {
-    if (!currentLocation) return;
+    if (!currentLocation || settings.gpsEnabled) return;
     
     const interval = setInterval(() => {
       if (!document.hidden) {
@@ -247,7 +381,7 @@ export default function App() {
     }, 300000);
 
     return () => clearInterval(interval);
-  }, [currentLocation]);
+  }, [currentLocation, settings.gpsEnabled]);
 
   const handleSearch = (q) => {
     if (q && q.trim()) {
@@ -395,6 +529,8 @@ export default function App() {
             currentTheme={currentTheme}
             primaryText={primaryText}
             secondaryText={secondaryText}
+            gpsEnabled={settings.gpsEnabled}
+            toggleGPS={toggleGPS}
           />
           <MenuDrawer
             isOpen={ui.isMenuOpen}

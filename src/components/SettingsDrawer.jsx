@@ -17,6 +17,8 @@ export default function SettingsDrawer({
   currentTheme,
   primaryText,
   secondaryText,
+  gpsEnabled,
+  toggleGPS,
 }) {
   
   const newBlueGradient = 'linear-gradient(180deg, #A1C4FD 0%, #3A8DFF 100%)';
@@ -192,6 +194,35 @@ export default function SettingsDrawer({
               <ToggleSwitch 
                 checked={motionEnabled} 
                 onChange={setMotionEnabled} 
+              />
+            </div>
+
+            <div className="border-t" style={{ borderColor: 'rgba(58, 141, 255, 0.15)' }} />
+
+            <div className="flex items-center justify-between">
+              <div>
+                <span 
+                  className="text-base font-semibold block mb-1" 
+                  style={{ 
+                    color: primaryText,
+                    fontFamily: 'Open Sans, sans-serif'
+                  }}
+                >
+                  Vị trí GPS
+                </span>
+                <span 
+                  className="text-sm" 
+                  style={{ 
+                    color: secondaryText,
+                    fontFamily: 'Open Sans, sans-serif'
+                  }}
+                >
+                  Sử dụng vị trí hiện tại của bạn
+                </span>
+              </div>
+              <ToggleSwitch 
+                checked={gpsEnabled} 
+                onChange={(checked) => toggleGPS(checked)} 
               />
             </div>
 
