@@ -107,22 +107,26 @@ button:active {
 }
 @keyframes slideInLeft {
   from {
-    transform: translateX(-100%);
+    transform: translateX(-30px) scale(0.95);
     opacity: 0;
+    filter: blur(4px);
   }
   to {
-    transform: translateX(0);
+    transform: translateX(0) scale(1);
     opacity: 1;
+    filter: blur(0);
   }
 }
 @keyframes slideInRight {
   from {
-    transform: translateX(100%);
+    transform: translateX(30px) scale(0.95);
     opacity: 0;
+    filter: blur(4px);
   }
   to {
-    transform: translateX(0);
+    transform: translateX(0) scale(1);
     opacity: 1;
+    filter: blur(0);
   }
 }
 @keyframes pulse {
@@ -159,4 +163,31 @@ button:active {
 
 .animate-spin-slow {
   animation: spin-slow 8s linear infinite;
+}
+
+/* Animated gradient background */
+@keyframes gradient-shift {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+.animated-gradient-bg {
+  background: linear-gradient(
+    -45deg,
+    #E3F2FD,
+    #F0F8FF,
+    #E1F5FE,
+    #E0F2F1,
+    #F0F8FF,
+    #E3F2FD
+  );
+  background-size: 400% 400%;
+  animation: gradient-shift 15s ease infinite;
 }

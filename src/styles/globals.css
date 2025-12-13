@@ -31,10 +31,26 @@ body {
   overflow: hidden;
   display: flex;
   flex-direction: column; 
-  background: linear-gradient(180deg, #E3F2FD 0%, #F0F8FF 100%);  
+  background: linear-gradient(
+    -45deg,
+    #E3F2FD,
+    #F0F8FF,
+    #E1F5FE,
+    #E0F2F1,
+    #F0F8FF,
+    #E3F2FD
+  );
+  background-size: 400% 400%;
+  animation: gradient-shift 15s ease infinite;
   border-radius: 0;
   border: none;
   box-shadow: none;
+}
+
+/* Dark mode: ẩn gradient, để Finisher Header làm background */
+.phone-container.dark-mode {
+  background: #1a1a2e;
+  animation: none;
 }
 .app-content-wrapper {
   position: relative;
@@ -162,4 +178,19 @@ button:active {
 .backdrop-blur-light {
   backdrop-filter: blur(15px);
   -webkit-backdrop-filter: blur(15px);
+}
+
+/* Responsive cho các tỉ lệ màn hình khác nhau */
+/* 18.5:9 và 19:9 - màn hình dài (cao) */
+@media (min-aspect-ratio: 9/18) and (max-aspect-ratio: 9/19.5) {
+  .phone-container {
+    /* Giảm spacing vertical cho màn hình dài */
+  }
+}
+
+/* 16:9 - màn hình rộng hơn */
+@media (min-aspect-ratio: 9/17) and (max-aspect-ratio: 9/18) {
+  .phone-container {
+    /* Tăng spacing vertical cho màn hình rộng */
+  }
 }
