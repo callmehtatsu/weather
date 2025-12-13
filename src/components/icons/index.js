@@ -1,2 +1,1 @@
-export { default as HourlyIcon } from './HourlyIcon';
-
+﻿export { default as HourlyIcon } from './HourlyIcon';
