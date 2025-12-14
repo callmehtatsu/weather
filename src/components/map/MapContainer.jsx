@@ -35,6 +35,7 @@ export default function MapContainer({
   const isDraggingRef = useRef(false);
   const lastMapCenterRef = useRef(null);
   const isUserInteractingRef = useRef(false);
+  const isMovingRef = useRef(false);
 
   const glassStyle = {
     background: 'rgba(255, 255, 255, 0.85)',
@@ -55,14 +56,14 @@ export default function MapContainer({
       const centerKey = `${mapCenter[0]}_${mapCenter[1]}`;
       const lastKey = lastMapCenterRef.current ? `${lastMapCenterRef.current[0]}_${lastMapCenterRef.current[1]}` : null;
       
-      if (centerKey !== lastKey) {
+      if (centerKey !== lastKey && !isUserInteractingRef.current && !isMovingRef.current) {
         setViewState(prev => ({
           ...prev,
           longitude: mapCenter[1],
           latitude: mapCenter[0],
         }));
         
-        if (mapInstance && !isUserInteractingRef.current) {
+        if (mapInstance) {
           mapInstance.flyTo({
             center: [mapCenter[1], mapCenter[0]],
             duration: 600,
@@ -150,18 +151,30 @@ export default function MapContainer({
         <>
           <MapGL
             {...viewState}
+            onMoveStart={() => {
+              isMovingRef.current = true;
+              isUserInteractingRef.current = true;
+            }}
             onMove={(evt) => {
               setViewState(evt.viewState);
+            }}
+            onMoveEnd={() => {
+              setTimeout(() => {
+                isMovingRef.current = false;
+                isUserInteractingRef.current = false;
+              }, 200);
             }}
             onDragStart={() => {
               isDraggingRef.current = true;
               isUserInteractingRef.current = true;
+              isMovingRef.current = true;
             }}
             onDragEnd={() => {
               setTimeout(() => {
                 isDraggingRef.current = false;
                 isUserInteractingRef.current = false;
-              }, 100);
+                isMovingRef.current = false;
+              }, 200);
             }}
             onClick={handleClick}
             onLoad={handleMapLoad}

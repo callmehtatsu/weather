@@ -212,15 +212,6 @@ export default function MapPanel({
       }
     });
     
-    if (mapRef.current && mapRef.current.flyTo) {
-      mapRef.current.flyTo({
-        center: [lng, lat],
-        zoom: mapRef.current.getZoom() || 9,
-        duration: 400,
-        essential: true
-      });
-    }
-    
     setTimeout(() => {
       isUserClickRef.current = false;
     }, 1000);
