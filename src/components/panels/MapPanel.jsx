@@ -40,20 +40,27 @@ export default function MapPanel({
   const mapRef = useRef(null);
   const toast = useToast();
   const isUserClickRef = useRef(false);
+  const lastUserClickTimeRef = useRef(0);
   const [skipFlyTo, setSkipFlyTo] = useState(false);
 
   useEffect(() => {
-    if (isUserClickRef.current) {
+    const timeSinceLastClick = Date.now() - lastUserClickTimeRef.current;
+    if (isUserClickRef.current || timeSinceLastClick < 2000) {
       return;
     }
     
     if (currentLocation && currentLocation.lat && currentLocation.lon) {
       const newCenter = [currentLocation.lat, currentLocation.lon];
-      setMapCenter(newCenter);
-      setMarkerPosition(newCenter);
-      setLocationName(currentLocation.city || 'Unknown');
+      const currentCenterKey = `${mapCenter[0]}_${mapCenter[1]}`;
+      const newCenterKey = `${newCenter[0]}_${newCenter[1]}`;
+      
+      if (currentCenterKey !== newCenterKey) {
+        setMapCenter(newCenter);
+        setMarkerPosition(newCenter);
+        setLocationName(currentLocation.city || 'Unknown');
+      }
     }
-  }, [currentLocation, shouldRenderMap]);
+  }, [currentLocation, shouldRenderMap, mapCenter]);
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -139,11 +146,13 @@ export default function MapPanel({
     if (!lat || !lng) return;
     
     isUserClickRef.current = true;
+    lastUserClickTimeRef.current = Date.now();
     setSkipFlyTo(true);
     
     const newCenter = [lat, lng];
     
     setMarkerPosition(newCenter);
+    setMapCenter(newCenter);
     
     if (mapRef.current) {
       const currentZoom = mapRef.current.getZoom ? mapRef.current.getZoom() : 9;
@@ -156,8 +165,6 @@ export default function MapPanel({
         mapRef.current.setCenter([lng, lat]);
       }
     }
-    
-    setMapCenter(newCenter);
     
     const tempLocationName = `${lat.toFixed(4)}, ${lng.toFixed(4)}`;
     setLocationName(tempLocationName);
@@ -230,7 +237,7 @@ export default function MapPanel({
     setTimeout(() => {
       isUserClickRef.current = false;
       setSkipFlyTo(false);
-    }, 1500);
+    }, 2000);
   };
 
   const handlePreviewCardClick = () => {
