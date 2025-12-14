@@ -1,156 +1,208 @@
-# Pleasant weather
+# pleasant weather
 
-## Yêu cầu
+ung dung du bao thoi tiet voi ban do nhiet do va nhieu tinh nang khac
 
-- Node.js >= 18.x
-- npm >= 9.x
+## link truy cap
 
-## Cài đặt
+web app: https://pleasant-weather.vercel.app/
 
-1. Clone repository:
-```bash
+android apk: chua co link tai ve, can build tu android studio
+
+backend api: https://weather-backend-vo7o.onrender.com/api
+
+## yeu cau
+
+nodejs >= 18.x
+npm >= 9.x
+
+## cai dat local
+
+clone repository:
+```
 git clone <repository-url>
 cd pleasant-weather
 ```
 
-2. Cài đặt tất cả dependencies:
-```bash
+cai dat dependencies:
+```
 npm install
 ```
 
-Lệnh này sẽ tự động cài đặt tất cả các packages cần thiết từ `package.json`:
-- React và React DOM
-- Mapbox GL và React Map GL
-- Axios
-- Lucide React (icons)
-- React Frappe Charts
-- Deck.gl (cho heatmap)
-- Vite và các plugins
-- Tailwind CSS
-- Và tất cả dependencies khác
-
-3. Tạo file `.env` từ template:
-```bash
-cp .env.example .env
+tao file .env:
+```
+VITE_MAPBOX_TOKEN=pk.eyJ1IjoiY2FsbG1laHRhdHN1IiwiYSI6ImNtaGJuZzB6ZTEwNTQyanByanowcG03NWoifQ.oIOUVP_YKThg5ZioHmxDsA
+VITE_API_BASE_URL=https://weather-backend-vo7o.onrender.com/api
+VITE_OPENWEATHER_API_KEY=4b33ee217ef5db8167e146b77f25d2b9
 ```
 
-4. Cấu hình biến môi trường trong file `.env`:
-```env
-VITE_API_BASE_URL=http://localhost:5000/api
-VITE_MAPBOX_TOKEN=your_mapbox_token_here
+chay development:
 ```
-
-**Lưu ý:** 
-- Thay `your_mapbox_token_here` bằng Mapbox token thực tế của bạn
-- Đảm bảo backend API đang chạy ở địa chỉ trong `VITE_API_BASE_URL`
-
-## Chạy ứng dụng
-
-### Development mode:
-```bash
 npm run dev
 ```
 
-Ứng dụng sẽ chạy tại `http://localhost:3000`
-
-### Development mode với host (để test trên mobile):
-```bash
-npm run dev:host
+build production:
 ```
-
-### Build production:
-```bash
 npm run build
 ```
 
-### Preview production build:
-```bash
-npm run preview
+## deploy backend len render
+
+dang ky tai khoan render tai https://render.com
+
+vao dashboard render, chon new web service
+
+ket noi voi github repository cua backend
+
+cau hinh nhu sau:
+- name: weather-backend (hoac ten khac tuy ban)
+- environment: node
+- build command: khong can (hoac de trong)
+- start command: npm start
+- plan: free
+
+them environment variables:
+- PORT: 5000 (hoac de mac dinh)
+- FRONTEND_URL: https://pleasant-weather.vercel.app
+- OPENWEATHER_API_KEY: 4b33ee217ef5db8167e146b77f25d2b9
+- CACHE_TTL: 300 (tu chon, don vi la giay)
+- NODE_ENV: production
+
+luu y: render free tier se sleep sau 15 phut khong co request, can dung cloudflare worker de ping lien tuc
+
+## deploy frontend len vercel
+
+dang ky tai khoan vercel tai https://vercel.com
+
+cai dat vercel cli:
+```
+npm i -g vercel
 ```
 
-## Dependencies chính
+hoac dung github integration:
+- vao vercel dashboard
+- chon add new project
+- ket noi github repository
+- chon repository pleasant-weather
 
-### Production:
-- `react` ^18.3.1
-- `react-dom` ^18.3.1
-- `react-map-gl` ^7.1.9
-- `mapbox-gl` ^3.17.0
-- `axios` ^1.6.0
-- `lucide-react` ^0.263.1
-- `react-frappe-charts` ^4.1.0
-- `frappe-charts` ^1.6.2
-- `@deck.gl/core` ^9.2.4
-- `@deck.gl/react` ^9.2.4
-- `@deck.gl/aggregation-layers` ^9.2.4
-- `@maptiler/sdk` ^3.9.0
-- `color-interpolate` ^2.0.0
-- `interpolateheatmaplayer` ^1.6.2
+cau hinh environment variables trong vercel dashboard:
+- vao project settings
+- chon environment variables
+- them cac bien sau:
+  - VITE_MAPBOX_TOKEN: pk.eyJ1IjoiY2FsbG1laHRhdHN1IiwiYSI6ImNtaGJuZzB6ZTEwNTQyanByanowcG03NWoifQ.oIOUVP_YKThg5ZioHmxDsA
+  - VITE_API_BASE_URL: https://weather-backend-vo7o.onrender.com/api
+  - VITE_OPENWEATHER_API_KEY: 4b33ee217ef5db8167e146b77f25d2b9
 
-### Development:
-- `vite` ^7.2.7
-- `@vitejs/plugin-react` ^4.3.1
-- `tailwindcss` ^3.4.17
-- `postcss` ^8.4.49
-- `autoprefixer` ^10.4.20
-- `vite-plugin-pwa` ^1.2.0
-- `vite-plugin-svgr` ^4.5.0
-- `@types/react` ^18.3.3
-- `@types/react-dom` ^18.3.0
+build settings:
+- framework preset: vite
+- build command: npm run build
+- output directory: dist
+- install command: npm install
 
-## Cấu trúc thư mục
+sau khi set env vars, vercel se tu dong build va deploy
 
+## setup cloudflare worker chong sleep render
+
+dang ky tai khoan cloudflare tai https://cloudflare.com
+
+vao dashboard cloudflare, chon workers and pages
+
+chon create application, roi create worker
+
+dat ten worker: wake-up-render (hoac ten khac)
+
+xoa code mac dinh, dan code sau:
 ```
+export default {
+  async scheduled(event, env, ctx) {
+    const url = "https://weather-backend-vo7o.onrender.com/health";
+    console.log(`Pinging: ${url}`);
+    ctx.waitUntil(
+      fetch(url).then(async (resp) => {
+        console.log(`Status: ${resp.status}`);
+      }).catch(err => {
+        console.error(`Error: ${err}`);
+      })
+    );
+  },
+  async fetch(request, env, ctx) {
+    return new Response("I am the waker! I keep Render alive.");
+  }
+};
+```
+
+save and deploy
+
+vao settings cua worker, chon triggers
+
+chon add cron trigger
+
+nhap cron syntax: */10 * * * *
+
+nghia la chay moi 10 phut mot lan
+
+add trigger
+
+ket qua: cu 10 phut cloudflare se tu dong ping render backend, render se khong bao gio sleep
+
+chi phi: cloudflare free tier cho 100000 requests/ngay, ping 10 phut/lan thi 1 ngay chi mat khoang 144 requests, dung ca doi khong het
+
+## build android apk
+
+cai dat android studio tai https://developer.android.com/studio
+
+mo android studio, chon open project
+
+chon folder android trong project pleasant-weather
+
+cho gradle sync hoan thanh
+
+vao build menu, chon build bundle(s) / apk(s), roi chon build apk(s)
+
+cho build xong, apk se nam o: android/app/build/outputs/apk/debug/app-debug.apk
+
+de build release apk can tao keystore va cau hinh trong build.gradle, nhung build debug apk la du de test
+
+## cau truc project
+
 src/
-├── components/       # React components
-├── hooks/           # Custom hooks
-├── utils/           # Utility functions
-├── styles/          # CSS files
-├── constants/        # Constants và config
-└── App.jsx          # Root component
-```
+- components/ cac react components
+- hooks/ custom hooks
+- utils/ utility functions
+- styles/ css files
+- constants/ constants va config
+- App.jsx root component
 
-## Tính năng
+## tinh nang
 
-- Xem thời tiết hiện tại và dự báo
-- Dự báo theo giờ (8 giờ)
-- Dự báo theo ngày (10 ngày)
-- Bản đồ thời tiết tương tác
-- Heatmap nhiệt độ
-- Dark mode / Light mode
-- GPS location
-- Tìm kiếm thành phố
-- Pull to refresh
-- Responsive design
+xem thoi tiet hien tai va du bao
+du bao theo gio 8 gio
+du bao theo ngay 16 ngay
+ban do thoi tiet tuong tac
+heatmap nhiet do
+dark mode light mode
+gps location
+tim kiem thanh pho
+pull to refresh
+responsive design
 
-## Tối ưu hóa
+## dependencies chinh
 
-- Adaptive polling: Tự động điều chỉnh tần suất cập nhật dựa trên user activity và network type
-- Network-aware: Nhận biết WiFi/4G/3G và Data Saver mode
-- Cache mechanism: Giảm số lượng API calls
-- Memory optimization: Tự động cleanup cache cũ
+react ^18.3.1
+react-dom ^18.3.1
+react-map-gl ^7.1.9
+mapbox-gl ^3.17.0
+axios ^1.6.0
+lucide-react ^0.263.1
+react-frappe-charts ^4.1.0
+interpolateheatmaplayer ^1.6.2
+vite ^7.2.7
+tailwindcss ^3.4.17
 
-## Deploy
+## luu y
 
-Khi deploy lên các platform như Vercel, Netlify, hoặc các hosting khác, cần set environment variables trong dashboard của platform:
-
-### Vercel:
-1. Vào Project Settings → Environment Variables
-2. Thêm các biến:
-   - `VITE_API_BASE_URL`: URL của backend API
-   - `VITE_MAPBOX_TOKEN`: Mapbox token của bạn
-
-### Netlify:
-1. Vào Site settings → Environment variables
-2. Thêm các biến tương tự
-
-### Lưu ý:
-- Keys free có thể commit vào repo nếu muốn (tùy chọn)
-- Khi deploy, **bắt buộc** phải set environment variables trong dashboard của platform
-- Vite chỉ inject env vars có prefix `VITE_` vào client-side code
-- Sau khi set env vars, cần rebuild lại app
-
-## Lưu ý khác
-
-- Cần backend API chạy ở `VITE_API_BASE_URL`
-- Cần Mapbox token để sử dụng bản đồ
-- Audio file `background.mp3` cần có trong `public/assets/audio/`
+can backend api chay o VITE_API_BASE_URL
+can mapbox token de su dung ban do
+audio file background.mp3 can co trong public/assets/audio/
+khi deploy len vercel, bat buoc phai set environment variables trong dashboard
+vite chi inject env vars co prefix VITE_ vao client-side code
+sau khi set env vars, can rebuild lai app
