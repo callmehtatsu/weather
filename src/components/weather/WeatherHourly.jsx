@@ -183,6 +183,9 @@ export default function WeatherHourly({
           onTouchStart={(e) => {
             e.stopPropagation();
           }}
+          onTouchMove={(e) => {
+            e.stopPropagation();
+          }}
         >
           {hourlyForecast.map((d, i) => (
             <HourlyCard
