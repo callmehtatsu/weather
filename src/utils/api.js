@@ -2,6 +2,9 @@
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'https://weather-backend-vo7o.onrender.com/api';
 
+console.log('[API] API_BASE_URL:', API_BASE_URL);
+console.log('[API] import.meta.env.VITE_API_BASE_URL:', import.meta.env.VITE_API_BASE_URL);
+
 const isMobile = typeof window !== 'undefined' && 
   /Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
 const isCapacitor = typeof window !== 'undefined' && window.Capacitor !== undefined;

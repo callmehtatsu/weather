@@ -133,6 +133,7 @@ export default function MapContainer({
 
   return (
     <div 
+      data-map-container
       className="flex-1 mb-4 rounded-3xl overflow-hidden"
       style={{ ...glassStyle, minHeight: '400px', position: 'relative', marginLeft: '1rem', marginRight: '1rem' }}
     >

@@ -84,7 +84,19 @@ export default function App() {
       fetchWeatherData('Hanoi');
     }
     
-  }, []); 
+  }, []);
+
+  useEffect(() => {
+    if (showSplash) {
+      const fallbackTimer = setTimeout(() => {
+        if (showSplash) {
+          setShowSplash(false);
+        }
+      }, 5000);
+      
+      return () => clearTimeout(fallbackTimer);
+    }
+  }, [showSplash]); 
 
 
   const handlePullRefresh = useCallback(async () => {

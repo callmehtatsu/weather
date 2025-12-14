@@ -1,12 +1,30 @@
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 
 export default function SplashScreen({ onComplete }) {
+  const hasCompletedRef = useRef(false);
+  
   useEffect(() => {
-    const timer = setTimeout(() => {
-      onComplete();
-    }, 3000);
+    const callOnComplete = () => {
+      if (hasCompletedRef.current) return;
+      hasCompletedRef.current = true;
+      try {
+        if (onComplete) {
+          onComplete();
+        }
+      } catch (error) {
+        console.error('splashscreen oncomplete error:', error);
+      }
+    };
+
+    const timer1 = setTimeout(callOnComplete, 2000);
+    const timer2 = setTimeout(callOnComplete, 3000);
+    const timer3 = setTimeout(callOnComplete, 5000);
     
-    return () => clearTimeout(timer);
+    return () => {
+      clearTimeout(timer1);
+      clearTimeout(timer2);
+      clearTimeout(timer3);
+    };
   }, [onComplete]);
 
   return (

@@ -229,18 +229,19 @@ export default function MapPanel({
     <>
       <MapStyles />
       <section 
+        data-map-container
         className="h-full flex flex-col relative" 
         style={{ 
           pointerEvents: 'auto',
           overflowY: 'auto',
           overflowX: 'hidden',
-          scrollbarWidth: 'none', // Firefox - ẩn scrollbar
-          msOverflowStyle: 'none', // IE/Edge - ẩn scrollbar
+          scrollbarWidth: 'none',
+          msOverflowStyle: 'none',
         }}
       >
         <style>{`
           section::-webkit-scrollbar {
-            display: none; /* Chrome, Safari, Opera - ẩn scrollbar */
+            display: none;
           }
         `}</style>
         <MapHeader

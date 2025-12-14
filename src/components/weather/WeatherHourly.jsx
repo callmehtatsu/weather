@@ -165,17 +165,25 @@ export default function WeatherHourly({
           }}
         />
         
-        <div className="flex overflow-x-auto scrollbar-hide" style={{ 
-          gap: 'clamp(0.5rem, 2vw, 0.75rem)',
-          paddingTop: 'clamp(6px, 1.5vh, 8px)', 
-          paddingBottom: 'clamp(6px, 1.5vh, 8px)', 
-          // Padding đủ để shadow hiển thị nhưng không tràn ra ngoài khi scroll
-          paddingLeft: 'clamp(15px, 3vw, 20px)', 
-          paddingRight: 'clamp(15px, 3vw, 20px)',
-          overflowY: 'visible',
-          scrollPaddingLeft: 'clamp(15px, 3vw, 20px)',
-          scrollPaddingRight: 'clamp(15px, 3vw, 20px)',
-        }}>
+        <div 
+          data-hourly-scroll
+          className="flex overflow-x-auto scrollbar-hide" 
+          style={{ 
+            gap: 'clamp(0.5rem, 2vw, 0.75rem)',
+            paddingTop: 'clamp(6px, 1.5vh, 8px)', 
+            paddingBottom: 'clamp(6px, 1.5vh, 8px)', 
+            paddingLeft: 'clamp(15px, 3vw, 20px)', 
+            paddingRight: 'clamp(15px, 3vw, 20px)',
+            overflowY: 'visible',
+            scrollPaddingLeft: 'clamp(15px, 3vw, 20px)',
+            scrollPaddingRight: 'clamp(15px, 3vw, 20px)',
+            touchAction: 'pan-x',
+            WebkitOverflowScrolling: 'touch',
+          }}
+          onTouchStart={(e) => {
+            e.stopPropagation();
+          }}
+        >
           {hourlyForecast.map((d, i) => (
             <HourlyCard
               key={i}

@@ -134,13 +134,20 @@ export default function WeatherPanel({
   // Swipe handlers - chỉ hoạt động khi không phải preview và không có GPS
   const handleTouchStart = (e) => {
     if (isPreview || gpsEnabled || !fetchWeatherData) return;
+    const target = e.target;
+    if (target.closest('[data-hourly-scroll]') || target.closest('[data-map-container]')) {
+      return;
+    }
     touchStartX.current = e.touches[0].clientX;
     touchStartY.current = e.touches[0].clientY;
   };
 
   const handleTouchMove = (e) => {
     if (isPreview || gpsEnabled || !fetchWeatherData) return;
-    // Cho phép scroll dọc nhưng ngăn scroll ngang khi swipe
+    const target = e.target;
+    if (target.closest('[data-hourly-scroll]') || target.closest('[data-map-container]')) {
+      return;
+    }
     const diffX = Math.abs(touchStartX.current - e.touches[0].clientX);
     const diffY = Math.abs(touchStartY.current - e.touches[0].clientY);
     if (diffX > diffY && diffX > 10) {
@@ -150,19 +157,20 @@ export default function WeatherPanel({
 
   const handleTouchEnd = (e) => {
     if (isPreview || gpsEnabled || !fetchWeatherData) return;
+    const target = e.target;
+    if (target.closest('[data-hourly-scroll]') || target.closest('[data-map-container]')) {
+      return;
+    }
     
     const touchEndX = e.changedTouches[0].clientX;
     const touchEndY = e.changedTouches[0].clientY;
     const diffX = touchStartX.current - touchEndX;
     const diffY = touchStartY.current - touchEndY;
     
-    // Chỉ swipe ngang khi diffX lớn hơn diffY (vuốt ngang rõ ràng)
     if (Math.abs(diffX) > Math.abs(diffY) && Math.abs(diffX) > 50) {
       if (diffX > 0) {
-        // Swipe sang trái - next city
         changeCity('next');
       } else {
-        // Swipe sang phải - previous city
         changeCity('prev');
       }
     }

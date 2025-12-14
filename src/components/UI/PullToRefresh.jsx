@@ -35,6 +35,7 @@ export default function PullToRefresh({
   const [isRefreshing, setIsRefreshing] = useState(false);
   
   const startY = useRef(0);
+  const startX = useRef(0);
   const currentY = useRef(0);
   const containerRef = useRef(null);
   const threshold = useRef(customThreshold || getResponsiveThreshold());
@@ -55,8 +56,13 @@ export default function PullToRefresh({
     if (!container || disabled) return;
 
     const handleTouchStart = (e) => {
-      if (container.scrollTop > 0) return; 
+      if (container.scrollTop > 0) return;
+      const target = e.target;
+      if (target.closest('[data-map-container]') || target.closest('[data-hourly-scroll]')) {
+        return;
+      }
       startY.current = e.touches[0].clientY;
+      startX.current = e.touches[0].clientX;
       setIsPulling(true);
       hasTriggeredHaptic.current = false;
     };
@@ -64,14 +70,28 @@ export default function PullToRefresh({
     const handleTouchMove = (e) => {
       if (!isPulling || container.scrollTop > 0) return;
       
+      const target = e.target;
+      if (target.closest('[data-map-container]') || target.closest('[data-hourly-scroll]')) {
+        setIsPulling(false);
+        return;
+      }
+      
       currentY.current = e.touches[0].clientY;
+      const currentX = e.touches[0].clientX;
+      const diffY = Math.abs(currentY.current - startY.current);
+      const diffX = Math.abs(currentX - startX.current);
+      
+      if (diffX > diffY * 1.5) {
+        setIsPulling(false);
+        return;
+      }
+      
       const distance = Math.max(0, currentY.current - startY.current);
       
-      if (distance > 0) {
+      if (distance > 0 && diffY > diffX) {
         e.preventDefault();
         const maxDistance = threshold.current * 2.5;
         setPullDistance(Math.min(distance, maxDistance));
-
 
         if (distance >= threshold.current && !hasTriggeredHaptic.current) {
           triggerHapticFeedback('medium');
