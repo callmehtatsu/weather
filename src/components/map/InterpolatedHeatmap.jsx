@@ -115,7 +115,41 @@ export default function InterpolatedHeatmap({
         const layer = createLayer(formattedPoints);
         if (!layer) return;
 
-        mapInstance.addLayer(layer);
+        // Tìm label layer đầu tiên để add heatmap TRƯỚC nó → labels sẽ nằm trên heatmap
+        const style = mapInstance.getStyle();
+        let beforeId = null;
+
+        if (style && style.layers) {
+          // Tìm layer label đầu tiên (type='symbol' và có text-field hoặc id chứa 'label'/'place'/'poi'/'road')
+          const labelLayer = style.layers.find(l => 
+            l.type === 'symbol' && 
+            (l.layout?.['text-field'] || 
+             l.id.includes('label') || 
+             l.id.includes('place') ||
+             l.id.includes('poi') ||
+             l.id.includes('road'))
+          );
+          
+          if (labelLayer) {
+            beforeId = labelLayer.id;
+            if (import.meta.env.DEV) {
+              console.log(`[InterpolatedHeatmap] Found label layer: "${beforeId}", adding heatmap before it`);
+            }
+          } else {
+            if (import.meta.env.DEV) {
+              console.warn('[InterpolatedHeatmap] No label layer found, adding heatmap at end');
+            }
+          }
+        }
+
+        // Add layer TRƯỚC label layer → labels sẽ render trên heatmap
+        if (beforeId) {
+          mapInstance.addLayer(layer, beforeId);
+        } else {
+          // Fallback: add như cũ nếu không tìm thấy label layer
+          mapInstance.addLayer(layer);
+        }
+        
         layerRef.current = layer;
 
         // Handle resize để update framebuffer khi zoom

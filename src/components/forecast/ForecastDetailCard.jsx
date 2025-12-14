@@ -210,8 +210,6 @@ export default function ForecastDetailCard({
           </div>
           <WeatherDescription
             condition={selectedDay.desc}
-            showPressure={true}
-            pressure={selectedDay.pressure}
             style={{
               fontSize: 'clamp(0.875rem, 3.5vw, 1rem)',
               color: '#64B5F6',

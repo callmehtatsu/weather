@@ -2,9 +2,15 @@
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'https://weather-backend-vo7o.onrender.com/api';
 
+const isMobile = typeof window !== 'undefined' && 
+  /Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+const isCapacitor = typeof window !== 'undefined' && window.Capacitor !== undefined;
+
+const DEFAULT_TIMEOUT = (isMobile || isCapacitor) ? 45000 : 30000;
+
 const api = axios.create({
   baseURL: API_BASE_URL,
-  timeout: 10000,
+  timeout: DEFAULT_TIMEOUT,
   headers: {
     'Content-Type': 'application/json'
   }
@@ -21,11 +27,29 @@ api.interceptors.request.use(
 
 api.interceptors.response.use(
   (response) => response.data,
-  (error) => {
+  async (error) => {
+    const originalRequest = error.config;
+    
+    if ((error.code === 'ECONNABORTED' || 
+         error.message?.includes('timeout') ||
+         error.code === 'ERR_NETWORK') && 
+        !originalRequest._retry && 
+        (originalRequest._retryCount || 0) < 2) {
+      
+      originalRequest._retry = true;
+      originalRequest._retryCount = (originalRequest._retryCount || 0) + 1;
+      
+      const delay = Math.pow(2, originalRequest._retryCount) * 1000;
+      await new Promise(resolve => setTimeout(resolve, delay));
+      
+      originalRequest.timeout = 60000;
+      return api(originalRequest);
+    }
+    
     if (error.name === 'CanceledError' || error.code === 'ERR_CANCELED') {
       return Promise.reject(error);
     }
-    // Log error để debug trên mobile (không chỉ DEV mode)
+    
     console.error('API Error:', {
       message: error.message,
       url: error.config?.url,

@@ -192,7 +192,6 @@ export function useSWRWeather() {
         tempMax: forecastData.forecast[0]?.tempMax || 24,
         tempMin: forecastData.forecast[0]?.tempMin || 18,
         rainChance: currentData.weather.precipitation || 10,
-        pressure: currentData.weather.pressure || 1012,
         visibility: 10
       };
 

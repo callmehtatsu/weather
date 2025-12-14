@@ -356,16 +356,6 @@ export default function ForecastPanel({
                     </span>
                   </div>
                 )}
-                {selectedDay.pressure && (
-                  <div className="flex justify-between items-center">
-                    <span style={{ color: secondaryText, fontSize: 'clamp(0.85rem, 2.2vw, 1rem)' }}>
-                      Áp suất
-                    </span>
-                    <span style={{ color: primaryText, fontSize: 'clamp(0.85rem, 2.2vw, 1rem)', fontWeight: 600 }}>
-                      {selectedDay.pressure} hPa
-                    </span>
-                  </div>
-                )}
                 {(selectedDay.precipitationProbability !== undefined || selectedDay.rainChance !== undefined) && (
                   <div className="flex justify-between items-center">
                     <span style={{ color: secondaryText, fontSize: 'clamp(0.85rem, 2.2vw, 1rem)' }}>

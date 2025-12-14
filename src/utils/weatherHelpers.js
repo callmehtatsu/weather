@@ -29,7 +29,6 @@ export const transformDailyForecast = (forecastData) => {
       humidity: (day.humidity != null && day.humidity !== undefined && !isNaN(day.humidity)) 
         ? Math.round(Math.max(0, Math.min(100, Number(day.humidity)))) 
         : 65,
-      pressure: day.pressure || 1013,
       tempMax: day.tempMax,
       rainChance: day.precipitationProbability
     };

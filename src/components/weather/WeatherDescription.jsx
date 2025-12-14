@@ -5,19 +5,11 @@ import { WEATHER_DESC_MAP } from '../../constants/weather';
 export default function WeatherDescription({ 
   condition, 
   shouldBreakLine = false,
-  style = {},
-  showPressure = false,
-  pressure = null
+  style = {}
 }) {
   const translatedDesc = translateWeatherDesc(condition, WEATHER_DESC_MAP);
   
   if (!translatedDesc) return null;
-  
-  const pressureText = showPressure && pressure 
-    ? ` • ${pressure} hPa`
-    : '';
-  
-  const fullDescription = translatedDesc + pressureText;
   
   if (shouldBreakLine) {
     const words = translatedDesc.split(' ');
@@ -30,7 +22,6 @@ export default function WeatherDescription({
           {words[0]}
           <br />
           {words.slice(1).join(' ')}
-          {pressureText}
         </div>
       );
     }
@@ -38,7 +29,7 @@ export default function WeatherDescription({
   
   return (
     <div style={style}>
-      {fullDescription}
+      {translatedDesc}
     </div>
   );
 }

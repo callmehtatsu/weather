@@ -17,9 +17,11 @@ export function usePreviewWeather() {
   const fetchPreviewWeather = async (lat, lon, cityName) => {
     setPreviewLoading(true);
     try {
-      const currentData = await weatherAPI.getCurrentWeather(null, lat, lon);
-      const forecastData = await weatherAPI.getForecast(null, lat, lon, 8);
-      const hourlyData = await weatherAPI.getHourlyForecast(null, lat, lon, 8);
+      const [currentData, forecastData, hourlyData] = await Promise.all([
+        weatherAPI.getCurrentWeather(null, lat, lon),
+        weatherAPI.getForecast(null, lat, lon, 8),
+        weatherAPI.getHourlyForecast(null, lat, lon, 8)
+      ]);
 
       const rawWeatherCode = currentData.weather.weatherCode;
       
@@ -61,7 +63,6 @@ export function usePreviewWeather() {
           tempMax: forecastData.forecast[0]?.tempMax || currentData.weather.temperature,
           tempMin: forecastData.forecast[0]?.tempMin || currentData.weather.temperature,
           rainChance: currentData.weather.precipitation || 10,
-          pressure: currentData.weather.pressure || 1012,
         },
         hourlyForecast: updatedHourlyForecast,
         dailyForecast: updatedDailyForecast,
